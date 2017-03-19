@@ -19,6 +19,10 @@ public interface INewsDao {
     @NotNull
     List<News> findByQuery(INewsQuery query);
 
+    @NonNls
+    @NotNull
+    List<News> findAllNews();
+
     long saveNews(@NotNull News news);
 
     void deleteNews(long id);

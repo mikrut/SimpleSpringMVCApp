@@ -10,7 +10,7 @@ import java.util.Set;
  */
 
 @Entity
-@Table(name = "category")
+@Table(name = "categories")
 public class Category {
 
     @Id
@@ -21,9 +21,10 @@ public class Category {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "news")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
     private Set<News> news = new HashSet<News>();
 
-
-
+    public String getName() {
+        return name;
+    }
 }

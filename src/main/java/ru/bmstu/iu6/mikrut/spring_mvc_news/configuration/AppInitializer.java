@@ -13,14 +13,33 @@ import javax.servlet.ServletRegistration;
  * Created by mikrut on 16.03.17.
  */
 
+
+/*public class AppInitializer implements WebApplicationInitializer {
+
+    public void onStartup(ServletContext container) throws ServletException {
+
+        AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
+        ctx.register(AppConfig.class);
+        ctx.setServletContext(container);
+
+        ServletRegistration.Dynamic servlet = container.addServlet(
+                "dispatcher", new DispatcherServlet(ctx));
+
+        servlet.setLoadOnStartup(1);
+        servlet.addMapping("/*");
+    }
+
+}*/
+
+
 public class AppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 
     protected Class<?>[] getRootConfigClasses() {
-        return new Class[]{AppConfig.class};
+        return new Class[]{WebConfiguration.class};
     }
 
     protected Class<?>[] getServletConfigClasses() {
-        return null;
+        return new Class[]{WebConfiguration.class};
     }
 
     protected String[] getServletMappings() {

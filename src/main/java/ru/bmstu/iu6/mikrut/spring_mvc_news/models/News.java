@@ -4,7 +4,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
-import java.sql.Date;
+import java.util.Date;
 
 /**
  * Created by mikrut on 17.03.17.

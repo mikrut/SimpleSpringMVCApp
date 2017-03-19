@@ -9,6 +9,7 @@ import ru.bmstu.iu6.mikrut.spring_mvc_news.models.News;
 
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 /**
@@ -31,6 +32,16 @@ public class NewsDao extends AbstractDao<Long, News> implements INewsDao  {
         return hQuery.list();
     }
 
+    @NotNull
+    @Override
+    public List<News> findAllNews() {
+        CriteriaQuery<News> criteria = createEntityCriteria();
+        Root<News> newsRoot = criteria.from(News.class);
+        criteria.select(newsRoot);
+
+        return getSession().createQuery(criteria).list();
+    }
+
     public long saveNews(@NotNull News news) {
         persist(news);
         getSession().flush();
@@ -38,7 +49,7 @@ public class NewsDao extends AbstractDao<Long, News> implements INewsDao  {
     }
 
     public void deleteNews(long id) {
-        Query<News> query = getSession().createQuery("delete from " + News.class.getSimpleName() + " where id = ?");
+        Query<News> query = getSession().createQuery("delete from " + News.class.getSimpleName() + " where id = ?", News.class);
         query.setParameter(0, id, StandardBasicTypes.LONG);
         query.executeUpdate();
     }

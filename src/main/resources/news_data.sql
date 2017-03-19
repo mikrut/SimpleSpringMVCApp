@@ -1,0 +1,1 @@
+INSERT INTO news (id, name, publication_date, contents, category_id) VALUES (1, 'Good news', {ts '2017-03-18 12:00:00.00'}, 'Some very nice news come up here', 1), (2, 'Better news', {ts '2017-03-18 13:00:00.00'}, 'Its a cute news', 1), (3, 'Weird', {ts '2017-03-18 11:43:21.00'}, 'Very weird news', 2);

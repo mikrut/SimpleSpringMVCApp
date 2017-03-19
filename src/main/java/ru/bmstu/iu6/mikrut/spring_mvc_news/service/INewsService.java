@@ -18,7 +18,7 @@ public interface INewsService {
 
     @NonNls
     @NotNull
-    List<News> findByParameters(@Nullable Long categoryId,
+    List<News> findByParameters(long categoryId,
                                 @Nullable String name,
                                 @Nullable String text);
 
@@ -27,5 +27,9 @@ public interface INewsService {
     void updateNews(@NotNull News news);
 
     void deleteNews(long id);
+
+    @NonNls
+    @NotNull
+    List<News> findAllNews();
 
 }
