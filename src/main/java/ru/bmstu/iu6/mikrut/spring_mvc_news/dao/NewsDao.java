@@ -49,7 +49,7 @@ public class NewsDao extends AbstractDao<Long, News> implements INewsDao  {
     }
 
     public void deleteNews(long id) {
-        Query<News> query = getSession().createQuery("delete from " + News.class.getSimpleName() + " where id = ?", News.class);
+        Query query = getSession().createQuery("delete from " + News.class.getSimpleName() + " where id = ?");
         query.setParameter(0, id, StandardBasicTypes.LONG);
         query.executeUpdate();
     }

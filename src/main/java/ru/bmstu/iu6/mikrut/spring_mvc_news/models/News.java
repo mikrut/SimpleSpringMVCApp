@@ -35,8 +35,9 @@ public class News {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    public News() {}
+
     public News(String name, String contents, Date publicationDate, Category category) {
-        this.id = id;
         this.name = name;
         this.contents = contents;
         this.publicationDate = publicationDate;

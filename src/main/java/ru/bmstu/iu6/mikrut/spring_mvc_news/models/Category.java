@@ -24,6 +24,10 @@ public class Category {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
     private Set<News> news = new HashSet<News>();
 
+    public long getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
