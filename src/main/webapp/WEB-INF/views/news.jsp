@@ -9,8 +9,8 @@
     <title>News</title>
     <link
       rel="stylesheet"
-      href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
-    <script src="http://material-components-web.appspot.com/assets/material-components-web.css.js" charset="utf-8"></script>
+      href="/css/material-components-web.min.css">
+    <script src="/js/material-components-web.css.js" charset="utf-8"></script>
 
     <style>
       .material-icons {
@@ -44,8 +44,8 @@
 <body class="mdc-typography demo-body">
     <header class="mdc-toolbar mdc-toolbar--fixed">
       <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
-        <a class="material-icons" id="arrow_back">arrow_back</a>
-        <span class="mdc-toolbar__title" id="toolbar_title">News</span>
+        <a href="/category/${news.getCategory().getId()}/news" style="color:#fff;" class="material-icons" id="arrow_back">arrow_back</a>
+        <a href="/" style="color:#fff; text-decoration:none" class="mdc-toolbar__title" id="toolbar_title">News</a>
       </section>
       <section class="mdc-toolbar__section mdc-toolbar__section--align-end" role="toolbar">
         <a class="material-icons" aria-label="Delete" alt="Delete" id="toolbar_delete">delete</a>
@@ -69,14 +69,6 @@
     </div>
 
     <script type="text/javascript">
-        document.getElementById("arrow_back").onclick = function() {
-            window.location.href = "/category/${news.getCategory().getId()}/news"
-        }
-
-        document.getElementById("toolbar_title").onclick = function() {
-            window.location.href = "/";
-        };
-
         edit_buttons = [
             document.getElementById("toolbar_edit"),
             document.getElementById("button_edit")
@@ -84,7 +76,7 @@
 
         edit_buttons.forEach(function(element){
             element.onclick = function() {
-
+                window.location.href = "/category/${news.getCategory().getId()}/news/${news.getId()}/edit"
             };
         });
 

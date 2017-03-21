@@ -1,22 +1,22 @@
 package ru.bmstu.iu6.mikrut.spring_mvc_news.controllers;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import ru.bmstu.iu6.mikrut.spring_mvc_news.models.Category;
 import ru.bmstu.iu6.mikrut.spring_mvc_news.models.News;
 import ru.bmstu.iu6.mikrut.spring_mvc_news.service.ICategoryService;
 import ru.bmstu.iu6.mikrut.spring_mvc_news.service.INewsService;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.*;
 
 /**
  * Created by mikrut on 16.03.17.
@@ -32,8 +32,8 @@ public class AppController {
     private ICategoryService categoryService;
 
     @RequestMapping(value = { "/" }, method = RequestMethod.GET)
-    public String getNews(ModelMap model) {
-        List<News> news = newsService.findAllNews();
+    public String getNews(@RequestParam(value="q", required = false) String q, ModelMap model) {
+        List<News> news = newsService.findByParameters(null, q, q);
         model.addAttribute("news", news);
         List<Category> categories = categoryService.findAll();
         model.addAttribute("categories", categories);
@@ -46,10 +46,9 @@ public class AppController {
                     "/category/{category_id}/news"
             }, method = RequestMethod.GET)
     public String getCategoryNews(@PathVariable("category_id") long categoryId,
-                                  @RequestParam(value = "name", required = false) String name,
-                                  @RequestParam(value = "text", required = false) String text,
+                                  @RequestParam(value = "q", required = false) String q,
                                   ModelMap model) {
-        List<News> news = newsService.findByParameters(categoryId, name, text);
+        List<News> news = newsService.findByParameters(categoryId, q, q);
         model.addAttribute("news", news);
         List<Category> categories = categoryService.findAll();
         model.addAttribute("categories", categories);
@@ -69,16 +68,44 @@ public class AppController {
 
     @RequestMapping(
             value = {
+                    "/category/{category_id}/news/{news_id}/edit"
+            }, method = RequestMethod.GET)
+    public String editNews(@PathVariable("news_id") long newsId, ModelMap model) {
+        News news = newsService.findById(newsId);
+        model.addAttribute("news", news);
+        model.addAttribute("category_id", news.getCategory().getId());
+        List<Category> categories = categoryService.findAll();
+        model.addAttribute("categories", categories);
+        return "edit";
+    }
+
+    @RequestMapping(
+            value = {
                     "/category/{category_id}/news"
             }, method = RequestMethod.POST
     )
-    public String createNews(@PathVariable("category_id") long categoryId,
-                             @RequestParam("name") String name,
-                             @RequestParam("contents") String contents) {
+    public @ResponseBody ResponseEntity<String> createNews(@PathVariable("category_id") long categoryId,
+                                  @RequestParam("name") String name,
+                                  @RequestParam("contents") String contents) {
         Category category = categoryService.findById(categoryId);
-        News news = new News(name, contents, new Date(), category);
-        long newsId = newsService.saveNews(news);
-        return "redirect:/category/" + categoryId + "/news/" + newsId;
+        JSONObject response = new JSONObject();
+        try {
+            News news = new News(name, contents, new Date(), category);
+            long newsId = newsService.saveNews(news);
+            response.put("status", "ok");
+            response.put("redirect", "/category/" + category.getId() + "/news/" + newsId);
+            return new ResponseEntity<>(response.toJSONString(), HttpStatus.OK);
+        } catch (ConstraintViolationException ex) {
+            response.put("status", "error");
+            JSONArray errorsArray = new JSONArray();
+            response.put("errors", errorsArray);
+            for (ConstraintViolation violation : ex.getConstraintViolations()) {
+                JSONObject error = new JSONObject();
+                error.put(violation.getPropertyPath(), violation.getMessage());
+                errorsArray.add(error);
+            }
+            return new ResponseEntity<>(response.toJSONString(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @RequestMapping(
@@ -86,22 +113,28 @@ public class AppController {
                     "/category/{category_id}/news/{news_id}"
             }, method = RequestMethod.PUT
     )
-    public String updateNews(@PathVariable("news_id") long newsId,
+    public @ResponseBody ResponseEntity<String> updateNews(@PathVariable("news_id") long newsId,
                              @RequestParam("name") String name,
                              @RequestParam("contents") String contents,
                              ModelMap model) {
-        News news = newsService.findById(newsId);
-        news.setName(name);
-        news.setContents(contents);
-        newsService.saveNews(news);
-        List<News> list = new ArrayList<>(1);
-        list.add(news);
-        model.addAttribute("news", list);
-        model.addAttribute("chosen_category_id", news.getCategory().getId());
-        List<Category> categories = categoryService.findAll();
-        model.addAttribute("categories", categories);
-        // TODO: use another jsp template
-        return "allnews";
+        JSONObject response = new JSONObject();
+        try {
+            newsService.updateNews(newsId, name, contents);
+            News news = newsService.findById(newsId);
+            response.put("status", "ok");
+            response.put("redirect", "/category/" + news.getCategory().getId() + "/news/" + newsId);
+            return new ResponseEntity<>(response.toJSONString(), HttpStatus.OK);
+        } catch (ConstraintViolationException ex) {
+            response.put("status", "error");
+            JSONArray errorsArray = new JSONArray();
+            response.put("errors", errorsArray);
+            for (ConstraintViolation violation : ex.getConstraintViolations()) {
+                JSONObject error = new JSONObject();
+                error.put(violation.getPropertyPath(), violation.getMessage());
+                errorsArray.add(error);
+            }
+            return new ResponseEntity<>(response.toJSONString(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @RequestMapping(

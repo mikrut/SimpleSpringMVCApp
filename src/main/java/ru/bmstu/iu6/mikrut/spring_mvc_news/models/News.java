@@ -18,7 +18,7 @@ public class News {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Size(min=5, max=100)
+    @Size(min=5, max=100, message = "The name must be between {min} and {max} characters long")
     @Column(name = "name", nullable = false)
     private String name;
 

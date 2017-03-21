@@ -19,6 +19,8 @@ public interface INewsDao {
     @NotNull
     List<News> findByQuery(INewsQuery query);
 
+    void updateNews(long id, String name, String contents);
+
     @NonNls
     @NotNull
     List<News> findAllNews();

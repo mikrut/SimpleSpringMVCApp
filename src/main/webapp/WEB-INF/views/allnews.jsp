@@ -9,8 +9,8 @@
     <title>News</title>
     <link
       rel="stylesheet"
-      href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
-    <script src="http://material-components-web.appspot.com/assets/material-components-web.css.js" charset="utf-8"></script>
+      href="/css/material-components-web.min.css">
+    <script src="/js/material-components-web.css.js" charset="utf-8"></script>
 
     <style>
     .app-fab--absolute.app-fab--absolute {
@@ -50,6 +50,7 @@
         .demo-main {
           width: 100%;
           padding-left: 16px;
+          margin-top: 16px;
         }
         .material-icons {
                 text-decoration: none;
@@ -67,12 +68,13 @@
     <header class="mdc-toolbar mdc-toolbar--fixed">
       <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
         <c:if test="${not empty chosen_category_id}">
-        <a class="material-icons" id="arrow_back">arrow_back</a>
+        <a href="/" style="color:#fff" class="material-icons" id="arrow_back">arrow_back</a>
         </c:if>
-        <span class="mdc-toolbar__title" id="toolbar_title">News</span>
+        <a href="/" style="color:#fff; text-decoration:none"  class="mdc-toolbar__title" id="toolbar_title">News</a>
       </section>
       <section class="mdc-toolbar__section mdc-toolbar__section--align-end" role="toolbar">
-          <a class="material-icons" aria-label="Create" alt="Create">add</a>
+          <a href="${(not empty chosen_category_id) ? '/category/' : ''}${(not empty chosen_category_id) ? chosen_category_id : ''}/new"
+          class="material-icons" style="color:#fff" aria-label="Create" alt="Create">add</a>
         </section>
     </header>
 
@@ -100,6 +102,15 @@
             </div>
           </nav>
           <main class="demo-main">
+
+            <form method="GET" action="${(not empty chosen_category_id) ? '/category/' : '/'}${(not empty chosen_category_id) ? chosen_category_id : ''}${(not empty chosen_category_id) ? '/news' : ''}">
+                <input type="submit" class="mdc-button mdc-button--compact" id="button_save" value="Find" />
+                <div class="mdc-textfield" data-demo-no-auto-js>
+                          <input type="text" class="mdc-textfield__input" id="textfield-search"
+                                 placeholder="Search" name="q">
+                </div>
+            </form>
+
             <ul class="mdc-list">
                     <c:forEach items="${news}" var="news_item">
                       <li class="mdc-list-item-text">
@@ -123,12 +134,19 @@
     </div>
 
     <script type="text/javascript">
-        back_to_main = function() {
-           window.location.href = "/";
-        };
-        document.getElementById("toolbar_title").onclick = back_to_main;
-        arrow_back = document.getElementById("arrow_back")
-        if (arrow_back != null) arrow_back.onclick = back_to_main;
+        function getParameterByName(name, url) {
+            if (!url) {
+              url = window.location.href;
+            }
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+
+        document.getElementById('textfield-search').value = getParameterByName('q');
     </script>
 
 </body>

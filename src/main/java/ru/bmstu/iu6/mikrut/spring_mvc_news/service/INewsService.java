@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.bmstu.iu6.mikrut.spring_mvc_news.dao.INewsQuery;
+import ru.bmstu.iu6.mikrut.spring_mvc_news.models.Category;
 import ru.bmstu.iu6.mikrut.spring_mvc_news.models.News;
 
 import java.util.List;
@@ -18,13 +19,13 @@ public interface INewsService {
 
     @NonNls
     @NotNull
-    List<News> findByParameters(long categoryId,
+    List<News> findByParameters(@Nullable Long categoryId,
                                 @Nullable String name,
                                 @Nullable String text);
 
     long saveNews(@NotNull News news);
 
-    void updateNews(@NotNull News news);
+    void updateNews(long id, String name, String contents);
 
     void deleteNews(long id);
 

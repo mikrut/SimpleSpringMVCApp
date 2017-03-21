@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.bmstu.iu6.mikrut.spring_mvc_news.dao.NewsDao;
+import ru.bmstu.iu6.mikrut.spring_mvc_news.models.Category;
 import ru.bmstu.iu6.mikrut.spring_mvc_news.models.News;
 import ru.bmstu.iu6.mikrut.spring_mvc_news.models.News_;
 
@@ -34,18 +35,35 @@ public class NewsService implements INewsService {
     @Override
     @NonNls
     @NotNull
-    public List<News> findByParameters(@Nullable long categoryId, @Nullable String name, @Nullable String text) {
-        return dao.findByQuery((query, builder) -> {
-            Root<News> newsRoot = query.from(News.class);
+    public List<News> findByParameters(@Nullable Long categoryId, @Nullable String name, @Nullable String text) {
+        return dao.findByQuery((query, builder, newsRoot) -> {
             // FIXME: escape special symbols from query
             // FIXME: use hibernate search
             // FIXME: use http://hibernate.org/search/documentation/getting-started/#introduction-to-full-text
-            query.where(builder.equal(newsRoot.get(News_.category), categoryId));
+            Predicate categoryPredicate = null;
+            if (categoryId != null)
+                categoryPredicate = builder.equal(newsRoot.get(News_.category), categoryId);
+
+            Predicate conditionPredicate = null;
             if (name != null) {
-                query.where(builder.like(builder.lower(newsRoot.get(News_.name)), "%" + name.toLowerCase() + "%"));
+                conditionPredicate = builder.like(builder.lower(newsRoot.get(News_.name)), "%" + name.toLowerCase() + "%");
             }
             if (text != null) {
-                query.where(builder.like(builder.lower(newsRoot.get(News_.contents)), "%" + text.toLowerCase() + "%"));
+                Predicate textPredicate = builder.like(builder.lower(newsRoot.get(News_.contents)), "%" + text.toLowerCase() + "%");
+                if (conditionPredicate != null) {
+                    conditionPredicate = builder.or(conditionPredicate, textPredicate);
+                } else {
+                    conditionPredicate = textPredicate;
+                }
+
+            }
+
+            if (categoryPredicate != null && conditionPredicate != null) {
+                query.where(builder.and(categoryPredicate, conditionPredicate));
+            } else if (categoryPredicate != null) {
+                query.where(categoryPredicate);
+            } else if (conditionPredicate != null) {
+                query.where(conditionPredicate);
             }
         });
     }
@@ -64,14 +82,8 @@ public class NewsService implements INewsService {
     }
 
     @Override
-    public void updateNews(@NotNull News news) {
-        News updated = dao.findById(news.getId());
-        if (updated != null) {
-            updated.setCategory(news.getCategory());
-            updated.setContents(news.getContents());
-            updated.setName(news.getName());
-            updated.setPublicationDate(news.getPublicationDate());
-        }
+    public void updateNews(long id, String name, String contents) {
+        dao.updateNews(id, name, contents);
     }
 
     @Override

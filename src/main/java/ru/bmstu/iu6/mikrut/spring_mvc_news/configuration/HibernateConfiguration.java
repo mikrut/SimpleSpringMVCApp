@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 import java.util.Properties;
 
+import static java.lang.Enum.valueOf;
 import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.H2;
 
 /**
